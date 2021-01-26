@@ -1,15 +1,22 @@
+
 ---
-title: "22-heatplot-figure"
-author: "Jelmer"
-date: "25-1-2021"
+title: "Heatmap"
+author: "Jelmer en Sanne"
+date: "24-1-2021"
 output: html_document
 ---
 
-#### Heatmap function
-```{r eval=FALSE, include=FALSE}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
+# Heatmapp function
+## The working code behind the apllication. 
+
+This function creates a heatmap out of the dataset, named heatmap_funtion. The input is the results from the DESeq2 analyse. The heatmap consists out of the top 20 genes. 
+```{r}
 heatmap_function <- function(se_input){
-  #First part is the deseq2 function again
+  
   ddsSE <- DESeq2::DESeqDataSet(se_input, design = formula(~dev_stage + genotype))
   
   keep <- rowSums(counts(ddsSE)) >= 10
@@ -39,30 +46,29 @@ heatmap_function <- function(se_input){
 }
 ```
 
+## Shiny 
+### Server.R
 
-#### Make heatmap figure of top 20
+The code below will create a heatmap. The input also consists of the summarized experiment, this is included for the DESeq2 analyse. 
+```{r}
+ heatmap_plot <- eventReactive(input$calculate_heatmap, {
+      heatmap_function(se_input = se_2())
+    })
+    
+   output$matrix_heatmap <- renderPlot ({
+      heatmap_function(se_input = se_2())
+    })
+   
+```
+   
+## UI.R
 
-```{r eval=FALSE, include=FALSE}
-box(
-              title = "Heatmap",
-              width = "10",
-              actionButton("calculate_heatmap", "Heatmap top 20"),
-              
-              box(
+THe code below creates the plotoutput. 
+```{r}
+    box(
                 title = "heatmap",
                 width = "12",
-                plotOutput("matrix_heatmap")
-              ))
+                plotOutput("matrix_heatmap"))
 ```
 
-```{r eval=FALSE, include=FALSE}
-#Heatmap maken
-  heatmap_plot <- eventReactive(input$calculate_heatmap, {
-    heatmap_function(se_input = se_2())
-  })
-  
-  output$matrix_heatmap <- renderPlot ({
-    heatmap_function(se_input = se_2())
-  })
-```
 
